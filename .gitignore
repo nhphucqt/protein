@@ -1,0 +1,7 @@
+__pycache__/
+.venv/
+.vscode/
+queries_bin/
+queries_states/
+targets_bin/
+targets_states/
