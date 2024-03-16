@@ -51,6 +51,7 @@ def min_max_coord(ptype):
     print(">>", np.max(heights))
 
 def save_mesh_state(ptype, start_id = 0):
+    info_ptype(ptype)
     # create folder
     if not os.path.exists(os.path.join(PATH_PREFIX, ptype["save"])):
         os.makedirs(os.path.join(PATH_PREFIX, ptype["save"]))
