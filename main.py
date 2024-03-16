@@ -4,65 +4,13 @@ from plyfile import PlyData, PlyElement
 from sphere_fibonacci_grid_points import sphere_fibonacci_grid_points
 import json
 
-# PATH_PREFIX = "/media/nhphucqt/NHPHUCQT/Research/shrec2024/protein"
-PATH_PREFIX = "/home/nhphucqt/Documents/MyLabs/protein"
+from MyMesh import MyMesh
+from config import *
 
-MESH_CONF = {
-    "query": {
-        "num": 387,
-        "type": "queries_bin",
-        "save": "queries_states"
-    },
-    "target": {
-        "num": 520,
-        "type": "targets_bin",
-        "save": "targets_states"
-    }
-}
 ptype = MESH_CONF["query"]
-
-CONF = {
-    "n_fibo": 24,
-    "n_rot": 16,
-    "h_mat_shape": (100, 100)
-}
 
 def info_ptype(ptype):
     print(ptype)
-
-class MyMesh:
-    def __init__(self, path):
-        self.mesh = PlyData.read(path, known_list_len={'face': {'vertex_indices': 3}})
-        self.vertices = np.array(self.mesh["vertex"].data.tolist())[:,:3]
-        centroid = np.mean(self.vertices, axis=0)
-        self.vertices -= centroid
-        self.radius = np.max(np.linalg.norm(self.vertices, axis=1))
-
-
-    def getFaceVertices(self, face):
-        return np.array([self.mesh["vertex"][i].tolist()[:3] for i in face["vertex_indices"]])
-
-    def getFaceVertices_id(self, id):
-        assert id < self.mesh["face"].count
-        return self.getFaceVertices(self.mesh["face"][id])
-    
-    def faceArea(self, face):
-        vertices = self.getFaceVertices(face)
-        norm = np.cross(vertices[2] - vertices[0], vertices[1] - vertices[0])
-        return np.sqrt(np.dot(norm, norm)) / 2.0
-    
-    def faceArea_id(self, id):
-        assert id < self.mesh["face"].count
-        return self.faceArea(self.mesh["face"][id])
-    
-    def allFaceArea(self):
-        vertices = np.array([self.getFaceVertices(face) for face in self.mesh['face']])
-        a = np.cross(vertices[:,1] - vertices[:,0], vertices[:,2] - vertices[:,0])
-        res = np.sqrt((a*a).sum(1)) / 2.0
-        return res
-    
-    def getVertexList(self):
-        return self.vertices
     
 def readMesh(ptype, id):
     assert id < ptype["num"]
@@ -102,9 +50,9 @@ def min_max_coord(ptype):
         print(heights[-1])
     print(">>", np.max(heights))
 
-def save_mesh_state(ptype):
+def save_mesh_state(ptype, start_id = 0):
     fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
-    for i in range(ptype["num"]):
+    for i in range(start_id, ptype["num"]):
         print("Mesh", i, "...")
 
         mesh = readMesh(ptype, i)
@@ -146,16 +94,16 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
         a = rot * 2*np.pi/CONF["n_rot"]
         rotPoints = np.matmul(newPoints, np.array([[np.cos(a), np.sin(a)], [-np.sin(a), np.cos(a)]]))
         for p, h in zip(rotPoints, heights):
-            x = min(mat_shape[0]-1, max(0, int(p[0] + mat_shape[0]/2)))
-            y = min(mat_shape[1]-1, max(0, int(p[1] + mat_shape[1]/2)))
+            x = min(mat_shape[0]-1, max(0, int(np.rint(p[0] + mat_shape[0]/2))))
+            y = min(mat_shape[1]-1, max(0, int(np.rint(p[1] + mat_shape[1]/2))))
             height_mat[rot,y,x] = max(height_mat[rot,y,x], h)
 
     return height_mat
 
 # des
 
-mesh = readMesh(ptype, 0);
-fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
+# mesh = readMesh(ptype, 0)
+# fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
 save_mesh_state(ptype)
 
 # convert_text_to_bin(ptype, os.path.join(PATH_PREFIX, f"/home/nhphucqt/Documents/MyLabs/protein/{ptype['type']}_bin"))
@@ -166,4 +114,7 @@ save_mesh_state(ptype)
 # mesh = PlyData([el], text=True)
 # print(mesh)
 # mesh.write("fibosphere.ply")
-    
+
+# print(a)
+# print()
+# print(np.sum(np.multiply(a, a), axis=2))
