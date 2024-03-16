@@ -51,6 +51,10 @@ def min_max_coord(ptype):
     print(">>", np.max(heights))
 
 def save_mesh_state(ptype, start_id = 0):
+    # create folder
+    if not os.path.exists(os.path.join(PATH_PREFIX, ptype["save"])):
+        os.makedirs(os.path.join(PATH_PREFIX, ptype["save"]))
+
     fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
     for i in range(start_id, ptype["num"]):
         print("Mesh", i, "...")
