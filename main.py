@@ -52,15 +52,17 @@ def min_max_coord(ptype):
         print(heights[-1])
     print(">>", np.max(heights))
 
-def save_mesh_state(ptype, start_id = 0):
+def save_mesh_state(ptype, start_id = 0, end_id = -1):
     info_ptype(ptype)
+    if end_id == -1:
+        end_id = ptype["num"]
     # create folder
     if not os.path.exists(os.path.join(PATH_PREFIX, ptype["save"])):
         os.makedirs(os.path.join(PATH_PREFIX, ptype["save"]))
 
     fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
-    for i in range(start_id, ptype["num"]):
-        print("Mesh", i, "...")
+    for i in range(start_id, end_id):
+        print(f"Mesh {i} (from {start_id} to {end_id})...")
 
         mesh = readMesh(ptype, i)
 
@@ -96,7 +98,7 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
     height_mat = np.full(shape=mat_shape, fill_value=-np.inf)
 
     for rot in range(CONF["n_rot"]):
-        a = rot * 2*np.pi/CONF["n_rot"]
+        a = rot * (2*np.pi/CONF["n_rot"])
         rotPoints = np.matmul(newPoints, utils.rotate2d(a))
         for p, h in zip(rotPoints, heights):
             x = min(mat_shape[1]-1, max(0, int(np.rint(p[0] + mat_shape[1]/2))))
@@ -105,17 +107,17 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
 
     return height_mat
 
-mesh = readMesh(ptype, 9)
-print(mesh.mesh)
-fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
-mat = get_height_matrix(mesh, fibosphere[11])
-print(mat.shape)
-for i in range(0, 100):
-    for j in range(30, 70):
-        print(np.round(mat[0, i, j]), end=" ")
-    print()
-# save_mesh_state(MESH_CONF["target"])
-# save_mesh_state(MESH_CONF["query"])
+# mesh = readMesh(ptype, 9)
+# print(mesh.mesh)
+# fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
+# mat = get_height_matrix(mesh, fibosphere[11])
+# print(mat.shape)
+# for i in range(0, 100):
+#     for j in range(30, 70):
+#         print(np.round(mat[0, i, j]), end=" ")
+#     print()
+save_mesh_state(MESH_CONF["target"], RANGE_TARGETS[RANGE_ID][0], RANGE_TARGETS[RANGE_ID][1])
+save_mesh_state(MESH_CONF["query"], RANGE_QUERIES[RANGE_ID][0], RANGE_QUERIES[RANGE_ID][1])
 
 # convert_text_to_bin(ptype, os.path.join(PATH_PREFIX, f"/home/nhphucqt/Documents/MyLabs/protein/{ptype['type']}_bin"))
 
