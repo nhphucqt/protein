@@ -1,7 +1,7 @@
 # PATH_PREFIX = "/media/nhphucqt/NHPHUCQT/Research/shrec2024/protein"
 
-PATH_PREFIX = "/home/nhphucqt/Documents/MyLabs/protein"
-# PATH_PREFIX = "/root/dataset"
+# PATH_PREFIX = "/home/nhphucqt/Documents/MyLabs/protein"
+PATH_PREFIX = "/root/dataset"
 
 MESH_CONF = {
     "query": {
