@@ -1,8 +1,12 @@
 __pycache__/
 .venv/
 .vscode/
+queries/
 queries_bin/
 queries_states/
+queries_bin_dec/
+targets/
 targets_bin/
 targets_states/
+targets_bin_dec/
 *.zip

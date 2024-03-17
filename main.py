@@ -7,7 +7,7 @@ import json
 from MyMesh import MyMesh
 from config import *
 
-ptype = MESH_CONF["query"]
+ptype = MESH_CONF["target"]
 
 def info_ptype(ptype):
     print(ptype)
@@ -99,17 +99,25 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
         a = rot * 2*np.pi/CONF["n_rot"]
         rotPoints = np.matmul(newPoints, np.array([[np.cos(a), np.sin(a)], [-np.sin(a), np.cos(a)]]))
         for p, h in zip(rotPoints, heights):
-            x = min(mat_shape[0]-1, max(0, int(np.rint(p[0] + mat_shape[0]/2))))
-            y = min(mat_shape[1]-1, max(0, int(np.rint(p[1] + mat_shape[1]/2))))
+            x = min(mat_shape[1]-1, max(0, int(np.rint(p[0] + mat_shape[1]/2))))
+            y = min(mat_shape[2]-1, max(0, int(np.rint(p[1] + mat_shape[2]/2))))
             height_mat[rot,y,x] = max(height_mat[rot,y,x], h)
 
     return height_mat
 
 # des
 
-# mesh = readMesh(ptype, 0)
+# mesh = readMesh(ptype, 9)
+# print(mesh.mesh)
 # fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
-save_mesh_state(ptype)
+# mat = get_height_matrix(mesh, fibosphere[11])
+# print(mat.shape)
+# for i in range(0, 100):
+#     for j in range(30, 70):
+#         print(np.round(mat[0, i, j]), end=" ")
+#     print()
+save_mesh_state(CONF["target"])
+save_mesh_state(CONF["query"])
 
 # convert_text_to_bin(ptype, os.path.join(PATH_PREFIX, f"/home/nhphucqt/Documents/MyLabs/protein/{ptype['type']}_bin"))
 
