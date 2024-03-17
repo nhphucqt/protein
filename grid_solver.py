@@ -1,5 +1,9 @@
 import numpy as np
 import sys
+import os
+import json
+
+from config import *
 
 class GridSolverResult:
     def __init__(self, score, height, query_offset, target_fibo_id, target_rot_id, query_fibo_id, query_rot_id):
@@ -118,6 +122,7 @@ class GridSolver:
         best_query_fibo_id = -1
         best_query_rot_id = -1
 
+        # for target_fibo_id, target_rot_id, query_fibo_id, query_rot_id in np.ndindex((2, 2, 2, 2)):
         for target_fibo_id, target_rot_id, query_fibo_id, query_rot_id in np.ndindex((self.target.shape[0], self.target.shape[1], self.query.shape[0], self.query.shape[1])):
             target = self.target[target_fibo_id, target_rot_id]
             dtarget = self.dtarget[target_fibo_id, target_rot_id]
@@ -137,9 +142,61 @@ class GridSolver:
 
         return GridSolverResult(best_score, best_height, best_offset, best_target_fibo_id, best_target_rot_id, best_query_fibo_id, best_query_rot_id)
 
-target = np.load("targets_states/0.npy")
-query = np.load("queries_states/0.npy")
 
-solver = GridSolver(target, query)
-result = solver.solve(num_iterations=1, hor_count=2, vert_count=2, epsilon=2)
-print(f"score: {result.score}, height: {result.height}, offset: {result.query_offset}, target_fibo_id: {result.target_fibo_id}, target_rot_id: {result.target_rot_id}, query_fibo_id: {result.query_fibo_id}, query_rot_id: {result.query_rot_id}")
+def query_target_matching(query, target_id):
+    target = np.load(os.path.join(STATES_PATH_PREFIX, MESH_CONF["target"]["state"], f"{target_id}.npy"))
+
+    solver = GridSolver(target, query)
+    result = solver.solve(num_iterations=1, hor_count=2, vert_count=2, epsilon=2)
+
+    print(f"score: {result.score}, height: {result.height}, offset: {result.query_offset}, target_fibo_id: {result.target_fibo_id}, target_rot_id: {result.target_rot_id}, query_fibo_id: {result.query_fibo_id}, query_rot_id: {result.query_rot_id}")
+
+    return (result.score, result.height), result.query_offset, (result.target_fibo_id, result.target_rot_id, result.query_fibo_id, result.query_rot_id)
+
+def query_solver(query_id):
+    results_sch = []
+    results_off = []
+    results_rot = []
+    query = np.load(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["state"], f"{query_id}.npy"))
+    # for target_id in range(5):
+    for target_id in range(MESH_CONF["target"]["num"]):
+        sch, off, rot = query_target_matching(query, target_id)
+        results_sch.append(sch)
+        results_off.append(off)
+        results_rot.append(rot)
+    return np.array(results_sch), np.array(results_off), np.array(results_rot)
+
+def solver(start_id = 0, end_id = -1):
+    if not os.path.exists(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"])):
+        os.makedirs(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"]))
+
+    if end_id == -1:
+        end_id = MESH_CONF["query"]["num"]
+    for i in range(start_id, end_id):
+        print(f"Query {i} (from {start_id} to {end_id})...")
+        results_sch, results_off, results_rot = query_solver(i)
+        with open(os.path.join(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"]), f"{i}.npy"), "wb") as fo:
+            np.save(fo, results_sch)
+            np.save(fo, results_off)
+            np.save(fo, results_rot)
+
+
+# target = np.load("targets_states/0.npy")
+# query = np.load("queries_states/0.npy")
+
+# solver = GridSolver(target, query)
+# result = solver.solve(num_iterations=1, hor_count=2, vert_count=2, epsilon=2)
+# print(f"score: {result.score}, height: {result.height}, offset: {result.query_offset}, target_fibo_id: {result.target_fibo_id}, target_rot_id: {result.target_rot_id}, query_fibo_id: {result.query_fibo_id}, query_rot_id: {result.query_rot_id}")
+            
+if __name__ == "__main__":
+    range_id = int(sys.argv[1])
+    print(range_id)
+    solver(RANGE_QUERIES[range_id][0], RANGE_QUERIES[range_id][1])
+    # query_solver(0)
+    # with open(os.path.join(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"]), f"0.npy"), "rb") as fo:
+    #     results_sch = np.load(fo)
+    #     results_off = np.load(fo)
+    #     results_rot = np.load(fo)
+    # print(results_sch)
+    # print(results_off)
+    # print(results_rot)

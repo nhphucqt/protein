@@ -57,8 +57,8 @@ def save_mesh_state(ptype, start_id = 0, end_id = -1):
     if end_id == -1:
         end_id = ptype["num"]
     # create folder
-    if not os.path.exists(os.path.join(PATH_PREFIX, ptype["save"])):
-        os.makedirs(os.path.join(PATH_PREFIX, ptype["save"]))
+    if not os.path.exists(os.path.join(PATH_PREFIX, ptype["state"])):
+        os.makedirs(os.path.join(PATH_PREFIX, ptype["state"]))
 
     fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
     for i in range(start_id, end_id):
@@ -76,10 +76,10 @@ def save_mesh_state(ptype, start_id = 0, end_id = -1):
 
         states = np.array(states)
         
-        with open(os.path.join(os.path.join(PATH_PREFIX, ptype["save"]), f"{i}.json"), "w") as fo:
+        with open(os.path.join(os.path.join(PATH_PREFIX, ptype["state"]), f"{i}.json"), "w") as fo:
             json.dump(CONF, fo, indent=2)
         
-        with open(os.path.join(os.path.join(PATH_PREFIX, ptype["save"]), f"{i}.npy"), "wb") as fo:
+        with open(os.path.join(os.path.join(PATH_PREFIX, ptype["state"]), f"{i}.npy"), "wb") as fo:
             np.save(fo, states)
 
 
