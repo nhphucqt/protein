@@ -4,6 +4,8 @@ from plyfile import PlyData, PlyElement
 from sphere_fibonacci_grid_points import sphere_fibonacci_grid_points
 import json
 
+import utils
+
 from MyMesh import MyMesh
 from config import *
 
@@ -86,18 +88,16 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
 
     projection = vertices - plane * np.vstack(heights)
     
-    axisX = np.array([-plane[1], plane[0], 0])
-    axisY = np.cross(plane, axisX)
-    basis = np.dstack((axisX, axisY))
+    basis = utils.get2dBasis(plane)
 
-    newPoints = np.matmul(projection, basis).squeeze()
+    newPoints = np.matmul(projection, basis)
 
     mat_shape = tuple([CONF["n_rot"]]) + CONF["h_mat_shape"]
     height_mat = np.full(shape=mat_shape, fill_value=-np.inf)
 
     for rot in range(CONF["n_rot"]):
         a = rot * 2*np.pi/CONF["n_rot"]
-        rotPoints = np.matmul(newPoints, np.array([[np.cos(a), np.sin(a)], [-np.sin(a), np.cos(a)]]))
+        rotPoints = np.matmul(newPoints, utils.rotate2d(a))
         for p, h in zip(rotPoints, heights):
             x = min(mat_shape[1]-1, max(0, int(np.rint(p[0] + mat_shape[1]/2))))
             y = min(mat_shape[2]-1, max(0, int(np.rint(p[1] + mat_shape[2]/2))))
@@ -105,19 +105,17 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
 
     return height_mat
 
-# des
-
-# mesh = readMesh(ptype, 9)
-# print(mesh.mesh)
-# fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
-# mat = get_height_matrix(mesh, fibosphere[11])
-# print(mat.shape)
-# for i in range(0, 100):
-#     for j in range(30, 70):
-#         print(np.round(mat[0, i, j]), end=" ")
-#     print()
-save_mesh_state(MESH_CONF["target"])
-save_mesh_state(MESH_CONF["query"])
+mesh = readMesh(ptype, 9)
+print(mesh.mesh)
+fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
+mat = get_height_matrix(mesh, fibosphere[11])
+print(mat.shape)
+for i in range(0, 100):
+    for j in range(30, 70):
+        print(np.round(mat[0, i, j]), end=" ")
+    print()
+# save_mesh_state(MESH_CONF["target"])
+# save_mesh_state(MESH_CONF["query"])
 
 # convert_text_to_bin(ptype, os.path.join(PATH_PREFIX, f"/home/nhphucqt/Documents/MyLabs/protein/{ptype['type']}_bin"))
 
