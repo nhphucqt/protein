@@ -116,8 +116,8 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
 #     for j in range(30, 70):
 #         print(np.round(mat[0, i, j]), end=" ")
 #     print()
-save_mesh_state(CONF["target"])
-save_mesh_state(CONF["query"])
+save_mesh_state(MESH_CONF["target"])
+save_mesh_state(MESH_CONF["query"])
 
 # convert_text_to_bin(ptype, os.path.join(PATH_PREFIX, f"/home/nhphucqt/Documents/MyLabs/protein/{ptype['type']}_bin"))
 
