@@ -177,7 +177,7 @@ def query_solver(query_id, step = 1):
     results_rot = []
     query = np.load(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["state"], f"{query_id}.npy"))
 
-    query = query[0:-1:step, 0:-1:step]
+    query = np.flip(query[0:-1:step, 0:-1:step], axis=3)
 
     # print(query.shape)
 
@@ -215,6 +215,7 @@ if __name__ == "__main__":
     range_id = int(sys.argv[1])
     print(range_id)
     solver(RANGE_QUERIES[range_id][0], RANGE_QUERIES[range_id][1], step=2)
+
     # query_solver(0, step=2)
     # with open(os.path.join(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"]), f"0.npy"), "rb") as fo:
     #     results_sch = np.load(fo)

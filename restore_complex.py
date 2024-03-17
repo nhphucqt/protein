@@ -27,7 +27,8 @@ def rotateBasis(points, basis):
 
     # rotation = np.matmul(utils.rotateAxisZ(-s_coord[5]), utils.rotateAxisY(-s_coord[4]))
 
-
+def rotatePoints(points, angle):
+    return np.matmul(points, utils.rotateAxisZ(angle))
 
 def main():
     fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
