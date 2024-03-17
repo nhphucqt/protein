@@ -5,13 +5,15 @@ PATH_PREFIX = "/home/nhphucqt/Documents/MyLabs/protein"
 MESH_CONF = {
     "query": {
         "num": 387,
-        "type": "queries_bin",
-        "save": "queries_states"
+        "type": "queries_bin_dec",
+        "save": "queries_states",
+        "decimate": "queries_bin_dec"
     },
     "target": {
         "num": 520,
-        "type": "targets_bin",
-        "save": "targets_states"
+        "type": "targets_bin_dec",
+        "save": "targets_states",
+        "decimate": "targets_bin_dec"
     }
 }
 
