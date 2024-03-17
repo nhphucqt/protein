@@ -27,6 +27,36 @@ class GridSolver:
         else:
             self.dtarget = dtarget
 
+    # remove -inf rows and columns from the grid
+    def grid_truncate(self, grid):
+        sta_x = 0
+        fin_x = grid.shape[0]
+        sta_y = 0
+        fin_y = grid.shape[1]
+
+        for i in range(grid.shape[0]):
+            if np.all(grid[i] == -np.inf):
+                sta_x += 1
+            else:
+                break
+        for i in range(grid.shape[0] - 1, -1, -1):
+            if np.all(grid[i] == -np.inf):
+                fin_x -= 1
+            else:
+                break
+        for i in range(grid.shape[1]):
+            if np.all(grid[:, i] == -np.inf):
+                sta_y += 1
+            else:
+                break
+        for i in range(grid.shape[1] - 1, -1, -1):
+            if np.all(grid[:, i] == -np.inf):
+                fin_y -= 1
+            else:
+                break
+
+        return sta_x, fin_x, sta_y, fin_y
+
     def fix_holes(self, grids):
         def is_hole(grid, i, j):
             if grid[i,j] != -np.inf:
@@ -141,6 +171,13 @@ class GridSolver:
             target = self.target[target_fibo_id, target_rot_id]
             dtarget = self.dtarget[target_fibo_id, target_rot_id]
             query = self.query[query_fibo_id, query_rot_id]
+
+            sta_x, fin_x, sta_y, fin_y = self.grid_truncate(target)
+            target = target[sta_x:fin_x, sta_y:fin_y]
+            dtarget = dtarget[sta_x:fin_x, sta_y:fin_y]
+            sta_x, fin_x, sta_y, fin_y = self.grid_truncate(query)
+            query = query[sta_x:fin_x, sta_y:fin_y]
+
             # print("t_f_id: ", target_fibo_id, "t_r_id: ", target_rot_id, "q_f_id: ", query_fibo_id, "q_r_id: ", query_rot_id)
             for i in np.linspace(0, query.shape[0], hor_count + 1, dtype=int)[:-1]:
                 for j in np.linspace(0, query.shape[1], vert_count + 1, dtype=int)[:-1]:
