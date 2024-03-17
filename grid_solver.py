@@ -49,13 +49,22 @@ class GridSolver:
 
     def offsetrange(self, x, y, offset):
         return range(max(0, offset), min(x, y + offset))
+    
+    def offsettuple(self, x, y, offset):
+        return max(0, offset), min(x, y + offset)
                 
-    def calculate_score(self, height, target, query, offset, metric):
+    def calculate_score(self, height, intersect, metric):
         score = 0
-        
-        for i in self.offsetrange(target.shape[0], query.shape[0], offset[0]):
-            for j in self.offsetrange(target.shape[1], query.shape[1], offset[1]):
-                score += metric(height - target[i, j] - query[i - offset[0], j - offset[1]])
+
+        # for i in self.offsetrange(target.shape[0], query.shape[0], offset[0]):
+        #     for j in self.offsetrange(target.shape[1], query.shape[1], offset[1]):
+        #         score += metric(height - target[i, j] - query[i - offset[0], j - offset[1]])
+
+        arr = height - intersect
+        # 1 / (x) ** 2
+        score = np.sum(metric(arr))
+
+        # print("score: ", score, "score_opt: ", score_opt, "diff: ", score - score_opt)
 
         return score
     
@@ -70,16 +79,21 @@ class GridSolver:
         for iteration in range(num_iterations):
             if offset[0] < 0 or offset[1] < 0 or offset[0] >= target.shape[0] or offset[1] >= target.shape[1]:
                 return best_score, best_height, best_offset
+
+            # height -= np.min([height - target[i, j] - query[i - offset[0], j - offset[1]] 
+            #                 for i in self.offsetrange(target.shape[0], query.shape[0], offset[0]) 
+            #                 for j in self.offsetrange(target.shape[1], query.shape[1], offset[1])
+            #                 if target[i, j] != -np.inf and query[i - offset[0], j - offset[1]] != -np.inf], initial = np.inf)
             
-            height -= np.min([height - target[i, j] - query[i - offset[0], j - offset[1]] 
-                            for i in self.offsetrange(target.shape[0], query.shape[0], offset[0]) 
-                            for j in self.offsetrange(target.shape[1], query.shape[1], offset[1])
-                            if target[i, j] != -np.inf and query[i - offset[0], j - offset[1]] != -np.inf], initial = np.inf)
+            tar_r = self.offsettuple(target.shape[0], query.shape[0], offset[0])
+            tar_c = self.offsettuple(target.shape[1], query.shape[1], offset[1])
+            intersect = target[tar_r[0]:tar_r[1], tar_c[0]:tar_c[1]] + query[tar_r[0]-offset[0]:tar_r[1]-offset[0], tar_c[0]-offset[1]:tar_c[1]-offset[1]]
+            height -= np.min(height - intersect)
             
             if np.isnan(height) or np.isinf(height):
                 return best_score, best_height, best_offset
             
-            score = self.calculate_score(height, target, query, offset, lambda x: 1 / (1 + x) ** 2)
+            score = self.calculate_score(height, intersect, lambda x: 1 / (1 + x) ** 2)
             if score > best_score:
                 best_score  = score
                 best_height = height
@@ -127,7 +141,7 @@ class GridSolver:
             target = self.target[target_fibo_id, target_rot_id]
             dtarget = self.dtarget[target_fibo_id, target_rot_id]
             query = self.query[query_fibo_id, query_rot_id]
-            print("t_f_id: ", target_fibo_id, "t_r_id: ", target_rot_id, "q_f_id: ", query_fibo_id, "q_r_id: ", query_rot_id)
+            # print("t_f_id: ", target_fibo_id, "t_r_id: ", target_rot_id, "q_f_id: ", query_fibo_id, "q_r_id: ", query_rot_id)
             for i in np.linspace(0, query.shape[0], hor_count + 1, dtype=int)[:-1]:
                 for j in np.linspace(0, query.shape[1], vert_count + 1, dtype=int)[:-1]:
                     score, height, offset = self.calculate(target, query, dtarget, (i, j), num_iterations, epsilon)
@@ -143,30 +157,39 @@ class GridSolver:
         return GridSolverResult(best_score, best_height, best_offset, best_target_fibo_id, best_target_rot_id, best_query_fibo_id, best_query_rot_id)
 
 
-def query_target_matching(query, target_id):
+def query_target_matching(query, target_id, step = 1):
     target = np.load(os.path.join(STATES_PATH_PREFIX, MESH_CONF["target"]["state"], f"{target_id}.npy"))
+
+    target = target[0:-1:step, 0:-1:step]
+
+    # print(target.shape)
 
     solver = GridSolver(target, query)
     result = solver.solve(num_iterations=1, hor_count=2, vert_count=2, epsilon=2)
 
-    print(f"score: {result.score}, height: {result.height}, offset: {result.query_offset}, target_fibo_id: {result.target_fibo_id}, target_rot_id: {result.target_rot_id}, query_fibo_id: {result.query_fibo_id}, query_rot_id: {result.query_rot_id}")
+    print(f"Target: {target_id}, score: {result.score}, height: {result.height}, offset: {result.query_offset}, target_fibo_id: {result.target_fibo_id}, target_rot_id: {result.target_rot_id}, query_fibo_id: {result.query_fibo_id}, query_rot_id: {result.query_rot_id}")
 
     return (result.score, result.height), result.query_offset, (result.target_fibo_id, result.target_rot_id, result.query_fibo_id, result.query_rot_id)
 
-def query_solver(query_id):
+def query_solver(query_id, step = 1):
     results_sch = []
     results_off = []
     results_rot = []
     query = np.load(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["state"], f"{query_id}.npy"))
-    # for target_id in range(5):
+
+    query = query[0:-1:step, 0:-1:step]
+
+    # print(query.shape)
+
+    # for target_id in range(1):
     for target_id in range(MESH_CONF["target"]["num"]):
-        sch, off, rot = query_target_matching(query, target_id)
+        sch, off, rot = query_target_matching(query, target_id, step)
         results_sch.append(sch)
         results_off.append(off)
         results_rot.append(rot)
     return np.array(results_sch), np.array(results_off), np.array(results_rot)
 
-def solver(start_id = 0, end_id = -1):
+def solver(start_id = 0, end_id = -1, step = 1):
     if not os.path.exists(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"])):
         os.makedirs(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"]))
 
@@ -174,7 +197,7 @@ def solver(start_id = 0, end_id = -1):
         end_id = MESH_CONF["query"]["num"]
     for i in range(start_id, end_id):
         print(f"Query {i} (from {start_id} to {end_id})...")
-        results_sch, results_off, results_rot = query_solver(i)
+        results_sch, results_off, results_rot = query_solver(i, step)
         with open(os.path.join(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"]), f"{i}.npy"), "wb") as fo:
             np.save(fo, results_sch)
             np.save(fo, results_off)
@@ -191,8 +214,8 @@ def solver(start_id = 0, end_id = -1):
 if __name__ == "__main__":
     range_id = int(sys.argv[1])
     print(range_id)
-    solver(RANGE_QUERIES[range_id][0], RANGE_QUERIES[range_id][1])
-    # query_solver(0)
+    solver(RANGE_QUERIES[range_id][0], RANGE_QUERIES[range_id][1], step=2)
+    # query_solver(0, step=2)
     # with open(os.path.join(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"]), f"0.npy"), "rb") as fo:
     #     results_sch = np.load(fo)
     #     results_off = np.load(fo)
