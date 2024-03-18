@@ -43,3 +43,6 @@ def rotate2d(angle):
         [np.cos(angle), -np.sin(angle)],
         [np.sin(angle), np.cos(angle)]
     ]).T
+
+def get_top_k(arr, k, axis=-1):
+    return np.argpartition(arr, -k, axis=axis)[-k:]
