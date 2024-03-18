@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import sys
 
 import utils
 from sphere_fibonacci_grid_points import sphere_fibonacci_grid_points
@@ -16,18 +17,9 @@ def rotateToZaxis(points, plane):
     )
 
 def rotateBasis(points, basis):
-    # print(np.dot(basis[0], basis[1]))
-    # print(np.dot(np.cross(basis[1], basis[0]), np.array([0, 0, 1])))
     s_coord = utils.appendSpherical_np(np.array([basis[0]])).squeeze()
-    print(s_coord)
-
     rotation = utils.rotateAxisZ(-s_coord[5])
-
     return np.matmul(points, rotation)
-
-    # print(np.matmul(basis, rotation))
-
-    # rotation = np.matmul(utils.rotateAxisZ(-s_coord[5]), utils.rotateAxisY(-s_coord[4]))
 
 def rotatePoints(points, angle):
     return np.matmul(points, utils.rotateAxisZ(angle))
@@ -38,7 +30,10 @@ def flipPoints(points):
 def offsetPoint(points, direction):
     return points + direction
 
-def restore_query_target(query, target, height, offset, rotation, step = 1):
+def restore_query_target(query_id, target_id, height, offset, rotation, step = 1):
+    query = MyMesh(os.path.join(PATH_PREFIX, MESH_CONF["query"]["type"], f"{query_id}.ply"))
+    target = MyMesh(os.path.join(PATH_PREFIX, MESH_CONF["target"]["type"], f"{target_id}.ply"))
+
     fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
     target_fib_id = rotation[0] * step
     target_rot_id = rotation[1]
@@ -57,10 +52,14 @@ def restore_query_target(query, target, height, offset, rotation, step = 1):
     target.vertices = rotateBasis(target.vertices, basis)
     target.vertices = rotatePoints(target.vertices, target_rot_angle)
 
-    query_path = os.path.join(COMPLEXES_PATH_PREFIX, f"query_{3}.ply")
-    query.save(query_path)
-    target_path = os.path.join(COMPLEXES_PATH_PREFIX, f"target_{3}.ply")
-    target.save(target_path)
+    # query_path = os.path.join(COMPLEXES_PATH_PREFIX, f"query_{query_id}.ply")
+    # query.save(query_path)
+    # target_path = os.path.join(COMPLEXES_PATH_PREFIX, f"target_{query_id}.ply")
+    # target.save(target_path)
+
+    merged = MyMesh.mergeMesh(query, target)
+    merged_path = os.path.join(COMPLEXES_PATH_PREFIX, f"{query_id}_{target_id}.ply")
+    MyMesh.savePly(merged[0], merged[1], merged_path)
 
 def restore(query_id, step = 1):
     path = os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"], f"{query_id}.npy")
@@ -70,22 +69,21 @@ def restore(query_id, step = 1):
         query_off = np.load(fi)
         query_rot = np.load(fi)
 
-    # print(query_sco)
-    top_10 = utils.get_top_k(query_sco, 1, axis=0)
-    # print(query_sco[top_10[0]])
+    top_10 = utils.get_top_k(query_sco, 10, axis=0)
+    print(top_10)
 
     for target_id in top_10:
-        query = MyMesh(os.path.join(PATH_PREFIX, MESH_CONF["query"]["type"], f"{query_id}.ply"))
-        target = MyMesh(os.path.join(PATH_PREFIX, MESH_CONF["target"]["type"], f"{target_id}.ply"))
-        restore_query_target(query, target, query_hei[target_id], query_off[target_id], query_rot[target_id], step)
+        restore_query_target(query_id, target_id, query_hei[target_id], query_off[target_id], query_rot[target_id], step)
+
+def restore_all(start_id, end_id, step = 1):
+    for i in range(start_id, end_id):
+        print(f"Restore {i} ({start_id} - {end_id})...")
+        restore(i, step)
 
 def main():
-    # a = np.array([9, 4, 4, 3, 3, 9, 0, 4, 6, 0])
-    # ind = np.argpartition(a, -4)
-    # print(ind)
-
-    restore(3, 2)
-
+    range_id = int(sys.argv[1])
+    start_id, end_id = RANGE_QUERIES[range_id]
+    restore_all(start_id, end_id, 2)
 
 if __name__ == "__main__":
     main()
