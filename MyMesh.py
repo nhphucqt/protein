@@ -46,20 +46,25 @@ class MyMesh:
         # self.mesh.write(path)
 
         vertex = np.array(list(map(tuple, self.vertices.tolist())), dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4')])
-        el_vertex = PlyElement.describe(vertex, "vertex", val_types={'x': 'f4', 'y': 'f4', 'z': 'f4'})
-
-        # face = [face["vertex_indices"] for face in self.mesh["face"]]
-        # print(face)
-
-        # print(self.mesh["face"].data["vertex_indices"])
-
-        # face = np.array(list(map(tuple, self.mesh["face"].data["vertex_indices"].tolist())))
-
-        # print(tuple([[3,4]]))
+        el_vertex = PlyElement.describe(vertex, "vertex")
 
         face = np.array(list(map(lambda x: tuple([x]), self.mesh["face"].data["vertex_indices"].tolist())), dtype=[('vertex_indices', 'i4', (3,))])
-        print(face)
         el_face = PlyElement.describe(face, "face", val_types={'vertex_indices': 'i4'})
         mesh = PlyData([el_vertex, el_face], text=True)
-        # # print(mesh)
+        mesh.write(path)
+
+    @staticmethod
+    def mergeMesh(meshA, meshB):
+        vertices = np.concatenate([meshA.vertices, meshB.vertices])
+        faces = np.concatenate([meshA.mesh["face"].data["vertex_indices"], meshB.mesh["face"].data["vertex_indices"] + len(meshA.vertices)])
+        return vertices, faces
+
+    @staticmethod
+    def savePly(vertices, faces, path):
+        vertex = np.array(list(map(tuple, vertices.tolist())), dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4')])
+        el_vertex = PlyElement.describe(vertex, "vertex")
+
+        face = np.array(list(map(lambda x: tuple([x]), faces.tolist())), dtype=[('vertex_indices', 'i4', (3,))])
+        el_face = PlyElement.describe(face, "face", val_types={'vertex_indices': 'i4'})
+        mesh = PlyData([el_vertex, el_face], text=True)
         mesh.write(path)
