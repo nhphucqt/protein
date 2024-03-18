@@ -172,11 +172,11 @@ class GridSolver:
             dtarget = self.dtarget[target_fibo_id, target_rot_id]
             query = self.query[query_fibo_id, query_rot_id]
 
-            sta_x, fin_x, sta_y, fin_y = self.grid_truncate(target)
-            target = target[sta_x:fin_x, sta_y:fin_y]
-            dtarget = dtarget[sta_x:fin_x, sta_y:fin_y]
-            sta_x, fin_x, sta_y, fin_y = self.grid_truncate(query)
-            query = query[sta_x:fin_x, sta_y:fin_y]
+            # sta_x, fin_x, sta_y, fin_y = self.grid_truncate(target)
+            # target = target[sta_x:fin_x, sta_y:fin_y]
+            # dtarget = dtarget[sta_x:fin_x, sta_y:fin_y]
+            # sta_x, fin_x, sta_y, fin_y = self.grid_truncate(query)
+            # query = query[sta_x:fin_x, sta_y:fin_y]
 
             # print("t_f_id: ", target_fibo_id, "t_r_id: ", target_rot_id, "q_f_id: ", query_fibo_id, "q_r_id: ", query_rot_id)
             for i in np.linspace(0, query.shape[0], hor_count + 1, dtype=int)[:-1]:
