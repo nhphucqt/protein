@@ -1,21 +1,23 @@
 # PATH_PREFIX = "/media/nhphucqt/NHPHUCQT/Research/shrec2024/protein"
 
-# PATH_PREFIX = "/home/nhphucqt/Documents/MyLabs/protein"
-PATH_PREFIX = "/root/dataset"
-# STATES_PATH_PREFIX = "/media/nhphucqt/NHPHUCQT/Research/shrec2024/protein/states.1.0/dataset_states/"
-STATES_PATH_PREFIX = "/root/dataset_states"
+PATH_PREFIX = "/home/nhphucqt/Documents/MyLabs/protein"
+# PATH_PREFIX = "/root/dataset"
+STATES_PATH_PREFIX = "/media/nhphucqt/NHPHUCQT/Research/shrec2024/protein/states.1.0/dataset_states/"
+COMPLEXES_PATH_PREFIX = "/media/nhphucqt/NHPHUCQT/Research/shrec2024/protein/complexes/"
+# STATES_PATH_PREFIX = "/root/dataset_states"
+# STATES_PATH_PREFIX = "/kaggle/input/dataset_states"
 
 MESH_CONF = {
     "query": {
         "num": 387,
-        "type": "queries_bin_dec",
+        "type": "queries_bin",
         "state": "queries_states",
         "decimate": "queries_bin_dec",
         "result": "results"
     },
     "target": {
         "num": 520,
-        "type": "targets_bin_dec",
+        "type": "targets_bin",
         "state": "targets_states",
         "decimate": "targets_bin_dec"
     }

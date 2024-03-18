@@ -38,31 +38,28 @@ class MyMesh:
     def getVertexList(self):
         return self.vertices
     
-    def meshSimilarity(self, other):
-        assert self.states != None
-        assert other.states != None
+    def save(self, path):
+        # self.mesh["vertex"].data = self.vertices
+        # self.mesh.text = False
+        # self.mesh.byte_order = "<"
+        # self.mesh.write(path)
+        # self.mesh.write(path)
 
-        def tableComplementary(tabA, tabB):
-            pass 
+        vertex = np.array(list(map(tuple, self.vertices.tolist())), dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4')])
+        el_vertex = PlyElement.describe(vertex, "vertex", val_types={'x': 'f4', 'y': 'f4', 'z': 'f4'})
 
-        def tableSimilarity(tabA, tabB):
-            # tabA = np.sum(np.multiply(tabA, tabA), axis=2)
-            # tabB = np.sum(np.multiply(tabB, tabB), axis=2)
+        # face = [face["vertex_indices"] for face in self.mesh["face"]]
+        # print(face)
 
-            # diff = tabA - tabB
-            # diff = np.multiply(diff, diff)
-            # diff = diff[np.isfinite(diff)]
-            
-            # diff 
+        # print(self.mesh["face"].data["vertex_indices"])
 
-            diff = tabA - tabB
-            diff = np.multiply(diff, diff)
-            diff = diff[np.isfinite(diff)]
+        # face = np.array(list(map(tuple, self.mesh["face"].data["vertex_indices"].tolist())))
 
-            
+        # print(tuple([[3,4]]))
 
-
-
-        for tabA in self.states:
-            for tabB in other.states:
-                pass
+        face = np.array(list(map(lambda x: tuple([x]), self.mesh["face"].data["vertex_indices"].tolist())), dtype=[('vertex_indices', 'i4', (3,))])
+        print(face)
+        el_face = PlyElement.describe(face, "face", val_types={'vertex_indices': 'i4'})
+        mesh = PlyData([el_vertex, el_face], text=True)
+        # # print(mesh)
+        mesh.write(path)
