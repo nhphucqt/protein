@@ -76,6 +76,10 @@ def restore(query_id, step = 1):
         restore_query_target(query_id, target_id, query_hei[target_id], query_off[target_id], query_rot[target_id], step)
 
 def restore_all(start_id, end_id, step = 1):
+    complex_path = COMPLEXES_PATH_PREFIX
+    if not os.path.exists(complex_path):
+        os.makedirs(complex_path)
+
     for i in range(start_id, end_id):
         print(f"Restore {i} ({start_id} - {end_id})...")
         restore(i, step)
