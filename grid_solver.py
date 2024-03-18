@@ -227,16 +227,15 @@ def query_solver(query_id, step = 1):
     return np.array(results_sch), np.array(results_off), np.array(results_rot)
 
 def solver(start_id = 0, end_id = -1, step = 1):
-    RESULT_PATH_PREFIX = "/kaggle/working/results"
-    if not os.path.exists(RESULT_PATH_PREFIX):
-        os.makedirs(RESULT_PATH_PREFIX)
+    if not os.path.exists(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"])):
+        os.makedirs(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"]))
 
     if end_id == -1:
         end_id = MESH_CONF["query"]["num"]
     for i in range(start_id, end_id):
         print(f"Query {i} (from {start_id} to {end_id})...")
         results_sch, results_off, results_rot = query_solver(i, step)
-        with open(os.path.join(RESULT_PATH_PREFIX, f"{i}.npy"), "wb") as fo:
+        with open(os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"], f"{i}.npy"), "wb") as fo:
             np.save(fo, results_sch)
             np.save(fo, results_off)
             np.save(fo, results_rot)
