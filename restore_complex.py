@@ -58,11 +58,11 @@ def restore_query_target(query_id, target_id, height, offset, rotation, step = 1
     # target.save(target_path)
 
     merged = MyMesh.mergeMesh(query, target)
-    merged_path = os.path.join(COMPLEXES_PATH_PREFIX, f"{query_id}_{target_id}.ply")
+    merged_path = os.path.join(PATH_PREFIX, MESH_CONF["query"]["complex"], f"{query_id}_{target_id}.ply")
     MyMesh.savePly(merged[0], merged[1], merged_path)
 
 def restore(query_id, step = 1):
-    path = os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"], f"{query_id}.npy")
+    path = os.path.join(PATH_PREFIX, MESH_CONF["query"]["result"], f"{query_id}.npy")
     with open(path, "rb") as fi:
         query_sch = np.load(fi)
         query_sco, query_hei = query_sch[:,0], query_sch[:,1]
@@ -75,19 +75,20 @@ def restore(query_id, step = 1):
     for target_id in top_10:
         restore_query_target(query_id, target_id, query_hei[target_id], query_off[target_id], query_rot[target_id], step)
 
-def restore_all(start_id, end_id, step = 1):
-    complex_path = COMPLEXES_PATH_PREFIX
+def restore_all(start_id = 0, end_id = -1, step = 1):
+    complex_path = os.path.join(PATH_PREFIX, MESH_CONF["query"]["complex"])
     if not os.path.exists(complex_path):
         os.makedirs(complex_path)
+
+    if end_id == -1:
+        end_id = MESH_CONF["query"]["num"]
 
     for i in range(start_id, end_id):
         print(f"Restore {i} ({start_id} - {end_id})...")
         restore(i, step)
 
 def main():
-    range_id = int(sys.argv[1])
-    start_id, end_id = RANGE_QUERIES[range_id]
-    restore_all(start_id, end_id, 2)
+    restore_all(step=2)
 
 if __name__ == "__main__":
     main()

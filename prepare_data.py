@@ -32,26 +32,6 @@ def convert_text_to_bin(ptype, destination, start_id = 0):
         print("Writing mesh ...")
         plydata.write(os.path.join(destination, filename))
 
-def list_faces_area(ptype):
-    areas = []
-    for i in range(ptype["num"]):
-        print("Mesh", i)
-        mesh = readMesh(ptype, i)
-        a = mesh.allFaceArea()
-        print(np.min(a), np.max(a), np.mean(a))
-        areas.append([np.min(a), np.max(a), np.mean(a)])
-    print(areas)
-    
-def min_max_coord(ptype):
-    fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
-    heights = []
-    for i in range(ptype["num"]):
-        print("Mesh", i)
-        mesh = readMesh(ptype, i)
-        heights.append(np.max([get_height_matrix(mesh, fi) for fi in fibosphere]))
-        print(heights[-1])
-    print(">>", np.max(heights))
-
 def save_mesh_state(ptype, start_id = 0, end_id = -1):
     info_ptype(ptype)
     if end_id == -1:
@@ -107,28 +87,5 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
 
     return height_mat
 
-# mesh = readMesh(ptype, 9)
-# print(mesh.mesh)
-# fibosphere = sphere_fibonacci_grid_points(CONF["n_fibo"])
-# mat = get_height_matrix(mesh, fibosphere[11])
-# print(mat.shape)
-# for i in range(0, 100):
-#     for j in range(30, 70):
-#         print(np.round(mat[0, i, j]), end=" ")
-#     print()
-# save_mesh_state(MESH_CONF["target"], RANGE_TARGETS[RANGE_ID][0], RANGE_TARGETS[RANGE_ID][1])
-# save_mesh_state(MESH_CONF["query"], RANGE_QUERIES[RANGE_ID][0], RANGE_QUERIES[RANGE_ID][1])
-save_mesh_state(MESH_CONF["query"], 0, 1)
-
-# convert_text_to_bin(ptype, os.path.join(PATH_PREFIX, f"/home/nhphucqt/Documents/MyLabs/protein/{ptype['type']}_bin"))
-
-# arr = np.array(list(map(tuple, arr.tolist())), dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4')])
-# el = PlyElement.describe(arr, "vertex", val_types={'x': 'f4', 'y': 'f4', 'z': 'f4'})
-# # print(el)
-# mesh = PlyData([el], text=True)
-# print(mesh)
-# mesh.write("fibosphere.ply")
-
-# print(a)
-# print()
-# print(np.sum(np.multiply(a, a), axis=2))
+save_mesh_state(MESH_CONF["query"])
+save_mesh_state(MESH_CONF["target"])

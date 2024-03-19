@@ -28,8 +28,6 @@ def decimate(obj, ratio):
 	decimate_modifier.ratio = 0.1
 	bpy.ops.object.modifier_apply(modifier=decimate_modifier.name)
 
-
-
 def decimate_all(ptype, ratio, start_id = 0):
 	for i in range(start_id, ptype["num"]):
 		print("Mesh", i, "...")

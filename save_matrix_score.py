@@ -6,7 +6,7 @@ from config import *
 def get_matrix_score():
     score_matrix = []
     for query_id in range(MESH_CONF["query"]["num"]):
-        path = os.path.join(STATES_PATH_PREFIX, MESH_CONF["query"]["result"], f"{query_id}.npy")
+        path = os.path.join(PATH_PREFIX, MESH_CONF["query"]["result"], f"{query_id}.npy")
         with open(path, "rb") as fi:
             query_sch = np.load(fi)
             query_sco, query_hei = query_sch[:,0], query_sch[:,1]
@@ -14,7 +14,8 @@ def get_matrix_score():
     return np.array(score_matrix)
 
 def main():
-    np.save(SCORE_MATRIX_PATH, get_matrix_score())
+    score_path = os.path.join(PATH_PREFIX, "score_matrix.npy")
+    np.save(score_path, get_matrix_score())
 
 if __name__ == "__main__":
     main()
