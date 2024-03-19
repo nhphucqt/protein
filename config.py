@@ -8,6 +8,8 @@ COMPLEXES_PATH_PREFIX = "/root/complexes"
 STATES_PATH_PREFIX = "/root/dataset_states"
 # STATES_PATH_PREFIX = "/kaggle/input/dataset_states"
 
+SCORE_MATRIX_PATH = "./score_matrix.npy"
+
 MESH_CONF = {
     "query": {
         "num": 387,
