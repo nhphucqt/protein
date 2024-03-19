@@ -116,8 +116,9 @@ def get_height_matrix(mesh, plane): # plane is a unit vector
 #     for j in range(30, 70):
 #         print(np.round(mat[0, i, j]), end=" ")
 #     print()
-save_mesh_state(MESH_CONF["target"], RANGE_TARGETS[RANGE_ID][0], RANGE_TARGETS[RANGE_ID][1])
-save_mesh_state(MESH_CONF["query"], RANGE_QUERIES[RANGE_ID][0], RANGE_QUERIES[RANGE_ID][1])
+# save_mesh_state(MESH_CONF["target"], RANGE_TARGETS[RANGE_ID][0], RANGE_TARGETS[RANGE_ID][1])
+# save_mesh_state(MESH_CONF["query"], RANGE_QUERIES[RANGE_ID][0], RANGE_QUERIES[RANGE_ID][1])
+save_mesh_state(MESH_CONF["query"], 0, 1)
 
 # convert_text_to_bin(ptype, os.path.join(PATH_PREFIX, f"/home/nhphucqt/Documents/MyLabs/protein/{ptype['type']}_bin"))
 
