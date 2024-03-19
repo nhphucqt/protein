@@ -13,14 +13,14 @@ SCORE_MATRIX_PATH = "./score_matrix.npy"
 MESH_CONF = {
     "query": {
         "num": 387,
-        "type": "queries_bin",
+        "type": "queries_bin_dec",
         "state": "queries_states",
         "decimate": "queries_bin_dec",
         "result": "results"
     },
     "target": {
         "num": 520,
-        "type": "targets_bin",
+        "type": "targets_bin_dec",
         "state": "targets_states",
         "decimate": "targets_bin_dec"
     }
